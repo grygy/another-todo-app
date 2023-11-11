@@ -3,14 +3,14 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class TodoBase(BaseModel):
+class TodoBaseSchema(BaseModel):
     title: str
     description: str
 
 
-class Todo(TodoBase):
+class TodoSchema(TodoBaseSchema):
     id: UUID
 
 
-class TodoCreate(TodoBase):
+class TodoCreateSchema(TodoBaseSchema):
     pass
