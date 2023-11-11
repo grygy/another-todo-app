@@ -1,0 +1,11 @@
+
+version: '0.1'
+
+services:
+  web:
+    build: ./todo_service
+    command: uvicorn main:app --host 0.0.0.0
+    volumes:
+      - .:/app
+    ports:
+      - 8008:8000
