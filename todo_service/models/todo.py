@@ -1,16 +1,13 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+
+class TodoCreate:
+    def __init__(self, title: str, description: str):
+        self.title = title
+        self.description = description
 
 
-class TodoBase(BaseModel):
-    title: str
-    description: str
-
-
-class Todo(TodoBase):
-    id: UUID
-
-
-class TodoCreate(TodoBase):
-    pass
+class Todo(TodoCreate):
+    def __init__(self, title: str, description: str, id: UUID = None):
+        super().__init__(title, description)
+        self.id = id
