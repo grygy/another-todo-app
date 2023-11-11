@@ -4,7 +4,7 @@ from typing import List
 from unittest.mock import patch
 from uuid import UUID
 
-from crud.base import BaseCRUD
+from crud.base_crud import BaseCRUD
 
 
 def get_mock_uuid():
