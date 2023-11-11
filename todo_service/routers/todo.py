@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import APIRouter
 
-from models.todo import Todo
+from schemas.todo import Todo
 
 router = APIRouter(
     prefix="/todo",
