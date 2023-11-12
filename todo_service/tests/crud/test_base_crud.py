@@ -39,7 +39,6 @@ class TestBaseCRUD(unittest.TestCase):
 
         self.assertEqual(result, mock_created_item)
         self.mock_repository.create.assert_called_once_with(mock_item_without_id)
-        self.assertIsInstance(mock_item_without_id.id, UUID)
 
     def test_update(self):
         mock_item_with_id = Mock(spec=HasId)

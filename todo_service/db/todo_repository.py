@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 
 from sqlalchemy import select
@@ -32,8 +33,9 @@ class TodoRepository(IRepository[TodoInDb]):
             return result.scalars().first()
 
     def create(self, todo: TodoInDb) -> TodoInDb:
-        """Create a todo"""
+        """Create a todo with new id"""
         with self.database as session:
+            todo.id = uuid.uuid4()
             session.add(todo)
             session.commit()
             return session.execute(select(TodoInDb).where(TodoInDb.id == todo.id)).scalars().first()

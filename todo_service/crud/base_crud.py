@@ -30,11 +30,7 @@ class BaseCRUD(Generic[TWithId, TWithoutId]):
         return self.repository.get_all()
 
     def create(self, item: TWithoutId) -> TWithId:
-        """Create an item in the database
-
-        Adds an id to the item and add it to the database
-        """
-        item.id = uuid.uuid4()
+        """Persist an item in the database"""
         return self.repository.create(item)
 
     def update(self, item: TWithId) -> TWithId:
