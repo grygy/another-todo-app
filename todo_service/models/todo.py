@@ -8,6 +8,7 @@ class TodoCreate:
 
 
 class Todo(TodoCreate):
-    def __init__(self, title: str, description: str, id: UUID = None):
+
+    def __init__(self, title: str, description: str, id: UUID):
         super().__init__(title, description)
         self.id = id
