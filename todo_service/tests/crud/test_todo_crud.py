@@ -1,66 +1,98 @@
 import unittest
-import uuid
-from typing import List
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+from uuid import UUID
 
-from crud.base_crud import BaseCRUD
-from models.todo import TodoCreate, Todo
-
-
-def get_mock_uuid():
-    return uuid.UUID("bd65600d-8669-4903-8a14-af88203add38")
+from crud.todo_crud import TodoCRUD
+from db.db_models.todo import TodoInDb
+from db.todo_repository import TodoRepository
 
 
-class TestBaseCRUD(unittest.TestCase):
+class MockTodoRepository(TodoRepository):
+    def __init__(self):
+        self.data = {}
 
-    def setUp(self) -> None:
-        self.db: List[Todo] = []
-        self.crud = BaseCRUD[Todo, TodoCreate](self.db)
+    def get_all(self) -> list[TodoInDb]:
+        return list(self.data.values())
 
-    @patch('uuid.uuid4')
-    def test_create(self, mock_uuid4):
-        mock_uuid4.return_value = get_mock_uuid()
+    def get_by_id(self, id: UUID) -> TodoInDb:
+        return self.data.get(id)
 
-        item = TodoCreate(title="test title", description="test description")
-        created_item = self.crud.create(item)
+    def create(self, todo: TodoInDb) -> TodoInDb:
+        self.data[todo.id] = todo
+        return todo
 
-        self.assertIn(created_item, self.db)
-        self.assertIsNotNone(created_item.id)
-        self.assertEqual(created_item.id, get_mock_uuid())
+    def update(self, todo: TodoInDb) -> TodoInDb:
+        self.data[todo.id] = todo
+        return todo
 
-    def test_get(self):
-        item = Todo(title="test title", description="test description", id=get_mock_uuid())
-        self.db.append(item)
+    def delete(self, id: UUID) -> None:
+        if id in self.data:
+            del self.data[id]
 
-        retrieved_item = self.crud.get(item.id)
 
-        self.assertEqual(retrieved_item, item)
+class TestTodoCRUD(unittest.TestCase):
+    def setUp(self):
+        self.mock_repository = MockTodoRepository()
+        self.todo_crud = TodoCRUD(self.mock_repository)
 
     def test_get_all(self):
-        self.db: List[Todo] = [Todo(title=f"title_{i}", description=f"description_{i}", id=uuid.uuid4()) for i in
-                               range(3)]
-        self.crud = BaseCRUD[Todo, TodoCreate](self.db)
-        all_items = self.crud.get_all()
+        # Arrange
+        todo1 = TodoInDb(id=UUID("123e4567-e89b-12d3-a456-426614174001"), title="Task 1", description="Description 1")
+        todo2 = TodoInDb(id=UUID("123e4567-e89b-12d3-a456-426614174002"), title="Task 2", description="Description 2")
+        self.mock_repository.data = {todo1.id: todo1, todo2.id: todo2}
 
-        self.assertEqual(all_items, self.db)
+        # Act
+        result = self.todo_crud.get_all()
+
+        # Assert
+        self.assertEqual(result, [todo1, todo2])
+
+    def test_get(self):
+        # Arrange
+        todo = TodoInDb(id=UUID("123e4567-e89b-12d3-a456-426614174001"), title="Task 1", description="Description 1")
+        self.mock_repository.data = {todo.id: todo}
+
+        # Act
+        result = self.todo_crud.get(todo.id)
+
+        # Assert
+        self.assertEqual(result, todo)
+
+    @patch("crud.base_crud.uuid")
+    def test_create(self, mock_uuid):
+        # Arrange
+        todo_create = MagicMock()
+        mock_uuid.uuid4.return_value = UUID("123e4567-e89b-12d3-a456-426614174001")
+
+        # Act
+        result = self.todo_crud.create(todo_create)
+
+        # Assert
+        self.assertEqual(result.id, UUID("123e4567-e89b-12d3-a456-426614174001"))
+        self.assertEqual(result, todo_create)
 
     def test_update(self):
-        item = Todo(title="test title", description="test description", id=get_mock_uuid())
-        self.db.append(item)
+        # Arrange
+        todo = TodoInDb(id=UUID("123e4567-e89b-12d3-a456-426614174001"), title="Task 1", description="Description 1")
+        self.mock_repository.data = {todo.id: todo}
 
-        updated_item = Todo(title="updated title", description="updated description", id=get_mock_uuid())
-        self.crud.update(updated_item)
+        # Act
+        result = self.todo_crud.update(todo)
 
-        self.assertIn(updated_item, self.db)
+        # Assert
+        self.assertEqual(result, todo)
 
     def test_delete(self):
-        item = Todo(title="test title", description="test description", id=get_mock_uuid())
-        self.db.append(item)
+        # Arrange
+        todo = TodoInDb(id=UUID("123e4567-e89b-12d3-a456-426614174001"), title="Task 1", description="Description 1")
+        self.mock_repository.data = {todo.id: todo}
 
-        self.crud.delete(item.id)
+        # Act
+        self.todo_crud.delete(todo.id)
 
-        self.assertNotIn(item, self.db)
+        # Assert
+        self.assertNotIn(todo.id, self.mock_repository.data)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

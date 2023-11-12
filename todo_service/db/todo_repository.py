@@ -4,15 +4,16 @@ from sqlalchemy import select
 
 from db.connection import Database
 from db.db_models.todo import TodoInDb
+from db.repository import IRepository
 
 
-class TodoRepository:
+class TodoRepository(IRepository[TodoInDb]):
     """Repository for todo"""
 
     def __init__(self, database: Database):
         self.database = database
 
-    def get_all(self):
+    def get_all(self) -> list[TodoInDb]:
         """Get all todos"""
         with self.database as session:
             statement = (
@@ -21,23 +22,23 @@ class TodoRepository:
             result = session.execute(statement)
             return result.scalars().all()
 
-    def get_by_id(self, todo_id: UUID):
+    def get_by_id(self, id: UUID) -> TodoInDb:
         """Get a todo by id"""
         with self.database as session:
             statement = (
-                select(TodoInDb).where(TodoInDb.id == todo_id)
+                select(TodoInDb).where(TodoInDb.id == id)
             )
             result = session.execute(statement)
             return result.scalars().first()
 
-    def create(self, todo: TodoInDb):
+    def create(self, todo: TodoInDb) -> TodoInDb:
         """Create a todo"""
         with self.database as session:
             session.add(todo)
             session.commit()
             return session.execute(select(TodoInDb).where(TodoInDb.id == todo.id)).scalars().first()
 
-    def update(self, todo: TodoInDb):
+    def update(self, todo: TodoInDb) -> TodoInDb:
         """Update a todo"""
         with self.database as session:
             statement = (
@@ -50,11 +51,11 @@ class TodoRepository:
             session.commit()
             return session.execute(select(TodoInDb).where(TodoInDb.id == todo.id)).scalars().first()
 
-    def delete(self, todo_id: UUID):
+    def delete(self, id: UUID) -> None:
         """Delete a todo"""
         with self.database as session:
             statement = (
-                select(TodoInDb).where(TodoInDb.id == todo_id)
+                select(TodoInDb).where(TodoInDb.id == id)
             )
             result = session.execute(statement)
             todo_in_db = result.scalars().first()
