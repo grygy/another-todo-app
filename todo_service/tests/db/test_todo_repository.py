@@ -72,3 +72,7 @@ class TestTodoRepository(unittest.TestCase):
         should_be_none = self.todo_repository.get_by_id(todo.id)
 
         self.assertIsNone(should_be_none)
+
+
+if __name__ == '__main__':
+    unittest.main()
