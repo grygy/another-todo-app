@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 from uuid import UUID
 
 from crud.todo_crud import TodoCRUD
-from db.db_models.todo import TodoInDb
 from db.todo_repository import TodoRepository
+from models.todo import TodoInDb
 
 
 class MockTodoRepository(TodoRepository):

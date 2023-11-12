@@ -1,14 +1,14 @@
-from uuid import UUID
+from sqlalchemy import Column, String, Uuid
+
+from models.base import Base
 
 
-class TodoCreate:
-    def __init__(self, title: str, description: str):
-        self.title = title
-        self.description = description
+class TodoInDb(Base):
+    __tablename__ = "todo"
 
+    id = Column(Uuid(as_uuid=True), primary_key=True, index=True)
+    title = Column(String())
+    description = Column(String())
 
-class Todo(TodoCreate):
-
-    def __init__(self, title: str, description: str, id: UUID):
-        super().__init__(title, description)
-        self.id = id
+    def __repr__(self):
+        return f"<TodoInDb(id={self.id}, title={self.title}, description={self.description})>"

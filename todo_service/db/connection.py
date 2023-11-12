@@ -1,8 +1,8 @@
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from db.db_models.base import Base
-from db.db_models.todo import TodoInDb
+from models.base import Base
+from models.todo import TodoInDb
 
 
 class Database:

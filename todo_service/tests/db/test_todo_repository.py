@@ -4,8 +4,8 @@ from uuid import uuid4
 from sqlalchemy import create_engine
 
 from db.connection import Database
-from db.db_models.todo import TodoInDb
 from db.todo_repository import TodoRepository
+from models.todo import TodoInDb
 
 
 class TestTodoRepository(unittest.TestCase):

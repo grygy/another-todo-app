@@ -1,6 +1,6 @@
 from crud.base_crud import BaseCRUD
-from db.db_models.todo import TodoInDb
 from db.todo_repository import TodoRepository
+from models.todo import TodoInDb
 
 
 class TodoCRUD(BaseCRUD[TodoInDb, TodoInDb]):

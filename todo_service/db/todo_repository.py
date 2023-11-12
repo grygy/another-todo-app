@@ -4,8 +4,8 @@ from uuid import UUID
 from sqlalchemy import select
 
 from db.connection import Database
-from db.db_models.todo import TodoInDb
 from db.repository import IRepository
+from models.todo import TodoInDb
 
 
 class TodoRepository(IRepository[TodoInDb]):
