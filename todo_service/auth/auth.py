@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict
 from uuid import UUID
 
 import bcrypt
@@ -8,20 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from pydantic import BaseModel
 
-from models.user import UserInDB
-
-fake_users_db = {
-    UUID("bd65600d-8669-4903-8a14-af88203add38"): {
-        "id": UUID("bd65600d-8669-4903-8a14-af88203add38"),
-        "username": "johndoe",
-        "hashed_password": "$2b$12$ioi5mfXvg2UzzuxriShJY./e7ShlW.jk2wCbNqaCvykzLL7MOkCni",  # password=secret
-    },
-    UUID("8f965c8d-9dcc-4b8a-9b8c-3f6f8f92a662"): {
-        "id": UUID("8f965c8d-9dcc-4b8a-9b8c-3f6f8f92a662"),
-        "username": "alice",
-        "hashed_password": "$2b$12$fP1oXPuR9gb0keuNkVGSXuaCDJojiQ8.ma5Xa452R8efJhVOgcS6C",  # password=secret2
-    },
-}
+from db.connection import Database, engine
+from db.user_repository import UserRepository
 
 # TODO put this in a .env file
 SECRET_KEY = "1cbf94982753ebbcfceed6cba5588d9f8e76fe5164563399b506d181e2e58ad1"
@@ -29,6 +16,8 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_IN_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/token")
+
+user_repository = UserRepository(Database.get_instance(engine=engine))
 
 
 class Token(BaseModel):
@@ -43,19 +32,6 @@ class TokenData(BaseModel):
 def hash_password(password: str):
     hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     return hashed.decode("utf-8")
-
-
-def get_user(db: Dict[UUID, Any], id: UUID):
-    if id in db:
-        user_dict = db[id]
-        return UserInDB(**user_dict)
-
-
-def get_user_by_username(db: Dict[UUID, Any], username: str):
-    for user_id in db:
-        user = get_user(db, user_id)
-        if user.username == username:
-            return user
 
 
 def verify_password(plain_password: str, saved_hashed_password: str):
@@ -74,7 +50,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 def authenticate_user(username: str, password: str):
-    user_in_db = get_user_by_username(fake_users_db, username)
+    user_in_db = user_repository.get_by_username(username)
     if not user_in_db:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     if not verify_password(password, user_in_db.hashed_password):
@@ -96,7 +72,7 @@ async def get_current_user(token=Depends(oauth2_scheme)):
         token_data = TokenData(id=id)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, id=token_data.id)
+    user = user_repository.get_by_id(token_data.id)
     if user is None:
         raise credentials_exception
     return user

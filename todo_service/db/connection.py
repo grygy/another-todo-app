@@ -1,8 +1,19 @@
-from sqlalchemy import Engine
+import os
+from uuid import uuid4
+
+from dotenv import load_dotenv
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
 
 from models.base import Base
 from models.todo import TodoInDb
+from models.user import UserInDb
+
+# load .env variables
+load_dotenv()
+
+database_url = os.getenv("DATABASE_URL")
+engine = create_engine(database_url, echo=True)
 
 
 class Database:
@@ -29,10 +40,21 @@ class Database:
     def create_all(self):
         Base.metadata.create_all(self.engine)
         TodoInDb.metadata.create_all(self.engine)
+        UserInDb.metadata.create_all(self.engine)
 
     def drop_all(self):
         Base.metadata.drop_all(self.engine)
         TodoInDb.metadata.drop_all(self.engine)
+        UserInDb.metadata.drop_all(self.engine)
+
+    def create_sample_data(self):
+        with self as session:
+            if session.query(TodoInDb).count() > 0:
+                return
+            user1 = UserInDb(id=uuid4(), username="johndoe",
+                             hashed_password="$2b$12$ioi5mfXvg2UzzuxriShJY./e7ShlW.jk2wCbNqaCvykzLL7MOkCni")
+            session.add(user1)
+            session.commit()
 
     def __enter__(self):
         self.session = Session(self.engine)
