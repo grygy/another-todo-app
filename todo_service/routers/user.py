@@ -3,16 +3,18 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from auth.auth import get_current_active_user, authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_IN_MINUTES
+from auth.auth import get_current_active_user, authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_IN_MINUTES, \
+    Token
+from schemas.user import UserSchema
 
 user_router = APIRouter(
     prefix="/user",
     tags=["user"],
     responses={404: {"description": "Not found"}},
 )
+ 
 
-
-@user_router.post("/login")
+@user_router.post("/login", response_model=Token)
 def login(form_data=Depends(OAuth2PasswordRequestForm)):
     user = authenticate_user(form_data.username, form_data.password)
 
@@ -22,7 +24,7 @@ def login(form_data=Depends(OAuth2PasswordRequestForm)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@user_router.get("/users/me")
+@user_router.get("/users/me", response_model=UserSchema)
 def read_users_me(
         current_user=Depends(get_current_active_user)
 ):
