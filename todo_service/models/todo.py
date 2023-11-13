@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Uuid
+from sqlalchemy import Column, String, Uuid, ForeignKey
+from sqlalchemy.orm import relationship
 
 from models.base import Base
 
@@ -9,6 +10,10 @@ class TodoInDb(Base):
     id = Column(Uuid(as_uuid=True), primary_key=True, index=True)
     title = Column(String())
     description = Column(String())
+
+    user_id = Column(Uuid(as_uuid=True), ForeignKey('user.id'))
+
+    user = relationship("UserInDb", back_populates="todos")
 
     def __repr__(self):
         return f"<TodoInDb(id={self.id}, title={self.title}, description={self.description})>"
