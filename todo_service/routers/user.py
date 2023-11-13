@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from auth.auth import fake_users_db, hash_password, get_current_active_user
+from auth.auth import fake_users_db, get_current_active_user, check_password
 from models.user import UserInDB
 
 user_router = APIRouter(
@@ -18,8 +18,7 @@ def login(form_data=Depends(OAuth2PasswordRequestForm)):
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     user = UserInDB(**user_dict)
-    hashed_password = hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
+    if not check_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     return {"access_token": user.username, "token_type": "bearer"}
