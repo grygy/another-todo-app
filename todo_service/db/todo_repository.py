@@ -63,3 +63,12 @@ class TodoRepository(IRepository[TodoInDb]):
             todo_in_db = result.scalars().first()
             session.delete(todo_in_db)
             session.commit()
+
+    def get_todos_for_user(self, user_id: UUID) -> list[TodoInDb]:
+        """Get all todos for a user"""
+        with self.database as session:
+            statement = (
+                select(TodoInDb).where(TodoInDb.user_id == user_id)
+            )
+            result = session.execute(statement)
+            return result.scalars().all()
