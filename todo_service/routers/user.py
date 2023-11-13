@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import timedelta
+
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from auth.auth import fake_users_db, get_current_active_user, check_password
-from models.user import UserInDB
+from auth.auth import get_current_active_user, authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_IN_MINUTES
 
 user_router = APIRouter(
     prefix="/user",
@@ -13,15 +14,12 @@ user_router = APIRouter(
 
 @user_router.post("/token")
 def login(form_data=Depends(OAuth2PasswordRequestForm)):
-    print(form_data)
-    user_dict = fake_users_db.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    if not check_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    user = authenticate_user(form_data.username, form_data.password)
 
-    return {"access_token": user.username, "token_type": "bearer"}
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_IN_MINUTES)
+    access_token = create_access_token(data={"sub": str(user.id)}, expires_delta=access_token_expires)
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @user_router.get("/users/me")
