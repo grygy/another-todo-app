@@ -39,6 +39,7 @@ class TestTodoRoute(unittest.TestCase):
             "id": str(todo_id),
             "title": "Todo 1",
             "description": "Description 1",
+            "finished": None,
         }]
 
         response = self.client.get("/todo")

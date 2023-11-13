@@ -74,11 +74,11 @@ class TodoRepository(IRepository[TodoInDb]):
             result = session.execute(statement)
             return result.scalars().all()
 
-    def mark_as_finished(self, id: UUID) -> TodoInDb:
+    def mark_as_finished(self, id: UUID, user_id: UUID) -> TodoInDb:
         """Mark a todo as finished"""
         with self.database as session:
             statement = (
-                select(TodoInDb).where(TodoInDb.id == id)
+                select(TodoInDb).where(TodoInDb.id == id, TodoInDb.user_id == user_id)
             )
             result = session.execute(statement)
             todo_in_db = result.scalars().one()
