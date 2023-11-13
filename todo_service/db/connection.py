@@ -59,6 +59,6 @@ class Database:
     def __enter__(self):
         self.session = Session(self.engine)
         return self.session
-
+ 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.session.close()
