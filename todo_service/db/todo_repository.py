@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -72,3 +73,19 @@ class TodoRepository(IRepository[TodoInDb]):
             )
             result = session.execute(statement)
             return result.scalars().all()
+
+    def mark_as_finished(self, id: UUID) -> TodoInDb:
+        """Mark a todo as finished"""
+        with self.database as session:
+            statement = (
+                select(TodoInDb).where(TodoInDb.id == id)
+            )
+            result = session.execute(statement)
+            todo_in_db = result.scalars().one()
+            if todo_in_db is None:
+                raise ValueError(f"Todo with id {id} not found")
+            if todo_in_db.finished is not None:
+                return todo_in_db
+            todo_in_db.finished = datetime.now()
+            session.commit()
+            return session.execute(select(TodoInDb).where(TodoInDb.id == id)).scalars().first()
