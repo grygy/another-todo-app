@@ -15,7 +15,7 @@ SECRET_KEY = "1cbf94982753ebbcfceed6cba5588d9f8e76fe5164563399b506d181e2e58ad1"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_IN_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
 
 user_repository = UserRepository(Database.get_instance(engine=engine))
 
