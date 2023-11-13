@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 
 from db.connection import Database
 from routers import todo
+from routers.user import user_router
 
 # load .env variables
 load_dotenv()
@@ -13,6 +14,7 @@ load_dotenv()
 app = FastAPI()
 
 app.include_router(todo.router)
+app.include_router(user_router)
 
 # Database
 database_url = os.getenv("DATABASE_URL")
