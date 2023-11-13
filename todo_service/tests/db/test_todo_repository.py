@@ -1,5 +1,6 @@
 import unittest
-from uuid import uuid4
+from datetime import datetime
+from uuid import uuid4, UUID
 
 from sqlalchemy import create_engine
 
@@ -101,6 +102,28 @@ class TestTodoRepository(unittest.TestCase):
         self.assertEqual(todos[0].description, todo1.description)
         self.assertEqual(todos[1].title, todo2.title)
         self.assertEqual(todos[1].description, todo2.description)
+
+    def test_mark_as_finished(self):
+        user1_id = uuid4()
+        user1 = UserInDb(id=user1_id, username="johndoe",
+                         hashed_password="$2b$12$ioi5mfXvg2UzzuxriShJY./e7ShlW.jk2wCbNqaCvykzLL7MOkCni")
+
+        with self.database as session:
+            session.add(user1)
+            session.commit()
+
+        todo_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+        todo = TodoInDb(id=todo_id, title="Test Todo", description="Test description", user_id=user1_id)
+        created = self.todo_repository.create(todo)
+
+        finished_todo = self.todo_repository.mark_as_finished(created.id, user1_id)
+
+        self.assertIsNotNone(finished_todo.finished)
+        self.assertIsInstance(finished_todo.finished, datetime)
+
+        retrieved_todo = self.todo_repository.get_by_id(created.id)
+        self.assertIsNotNone(retrieved_todo.finished)
+        self.assertIsInstance(retrieved_todo.finished, datetime)
 
 
 if __name__ == '__main__':

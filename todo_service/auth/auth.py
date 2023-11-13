@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from db.connection import Database, engine
 from db.user_repository import UserRepository
+from schemas.user import UserSchema
 
 # TODO put this in a .env file
 SECRET_KEY = "1cbf94982753ebbcfceed6cba5588d9f8e76fe5164563399b506d181e2e58ad1"
@@ -75,7 +76,7 @@ async def get_current_user(token=Depends(oauth2_scheme)):
     user = user_repository.get_by_id(token_data.id)
     if user is None:
         raise credentials_exception
-    return user
+    return UserSchema(**user.__dict__)
 
 
 async def get_current_active_user(
