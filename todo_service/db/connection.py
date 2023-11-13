@@ -49,7 +49,7 @@ class Database:
 
     def create_sample_data(self):
         with self as session:
-            if session.query(TodoInDb).count() > 0:
+            if session.query(UserInDb).count() > 0:
                 return
             user1 = UserInDb(id=uuid4(), username="johndoe",
                              hashed_password="$2b$12$ioi5mfXvg2UzzuxriShJY./e7ShlW.jk2wCbNqaCvykzLL7MOkCni")
