@@ -16,7 +16,7 @@ username: johndoe
 password: secret
 ```
 
-### Testing
+## Testing
 
 ```bash
 cd todo_service
@@ -27,3 +27,27 @@ python3 -m unittest discover
 cd notification_service
 python3 -m unittest discover
 ```
+
+## Technology stack
+
+- Python 3.11
+  - FastAPI
+  - unittest
+  - SQLAlchemy
+  - Pydantic
+  - aiohttp
+- PostgreSQL
+- Docker
+
+## Architecture
+
+- Todo service
+
+  - Manages todos for user
+  - Uses PostgreSQL as a database
+
+- Notification service
+
+  - Sends notifications about finished todos
+
+![Architecture](another_todo_app_architecture.jpg)
