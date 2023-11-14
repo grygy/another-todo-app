@@ -88,4 +88,4 @@ class TodoRepository(IRepository[TodoInDb]):
                 return todo_in_db
             todo_in_db.finished = datetime.now()
             session.commit()
-            return session.execute(select(TodoInDb).where(TodoInDb.id == id)).scalars().first()
+            return session.execute(select(TodoInDb).where(TodoInDb.id == id)).scalars().one()
