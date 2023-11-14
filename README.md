@@ -15,3 +15,15 @@ Then open http://localhost:8008/docs in your browser. You can try the endpoints 
 username: johndoe
 password: secret
 ```
+
+### Testing
+
+```bash
+cd todo_service
+python3 -m unittest discover
+```
+
+```bash
+cd notification_service
+python3 -m unittest discover
+```
