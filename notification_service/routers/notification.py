@@ -21,4 +21,4 @@ async def create_todo(
         notification: NotificationSchema
 ):
     """Send notification to Discord"""
-    notification_publisher.publish(notification.message)
+    await notification_publisher.publish(notification.message)

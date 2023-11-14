@@ -9,10 +9,10 @@ class NotificationPublisher:
     def __init__(self):
         self.subscribers: list[INotificationSubscriber] = []
 
-    def publish(self, message: str) -> None:
+    async def publish(self, message: str) -> None:
         """Publish a notification to all subscribers."""
         for subscriber in self.subscribers:
-            subscriber.notify(message)
+            await subscriber.notify(message)
 
     def add_subscriber(self, subscriber: INotificationSubscriber):
         """Add a subscriber to the subscriber list."""
