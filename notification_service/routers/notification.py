@@ -17,7 +17,7 @@ notification_publisher.add_subscriber(discord_subscriber)
 
 
 @router.post("/")
-async def create_todo(
+async def notify(
         notification: NotificationSchema
 ):
     """Send notification to Discord"""
