@@ -1,6 +1,7 @@
 from typing import List
 from uuid import uuid4, UUID
 
+import aiohttp
 from fastapi import APIRouter, Depends
 
 from auth.auth import get_current_active_user
@@ -41,12 +42,19 @@ def create_todo(
 
 
 @router.put("/done/{todo_id}", response_model=TodoSchema)
-def mark_as_done(
+async def mark_as_done(
         todo_id: str,
         current_user=Depends(get_current_active_user)
 ):
     """Mark a todo as done"""
     todo_repository = TodoRepository(Database.get_instance(engine=engine))
     todo = todo_repository.mark_as_finished(UUID(todo_id), current_user.id)
-    return TodoSchema(id=todo.id, title=todo.title, description=todo.description,
-                      finished=todo.finished)
+    print("TODO", todo)
+    async with aiohttp.ClientSession() as session:
+        async with session.post("http://localhost:8009/notification/",
+                                json={"message": f"Todo DONE: {todo.title}"}
+                                ) as response:
+            if response.status != 200:
+                raise Exception("Failed to send notification to Discord")
+            return TodoSchema(id=todo.id, title=todo.title, description=todo.description,
+                              finished=todo.finished)
