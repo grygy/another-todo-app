@@ -11,6 +11,7 @@ services:
       - 8008:8000
     environment:
       - DATABASE_URL=postgresql://todo_service:todo_service_password@db:5432/todo_service
+      - NOTIFICATION_URL=http://notification:8009
     depends_on:
       - db
       - notification
